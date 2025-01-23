@@ -42,7 +42,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       
       - name: Build Docker Image
-        run: docker build -t myapp:${{ github.sha }} ./BlazorAppFront/Dockerfile
+        run: docker build -t myapp:${{ github.sha }} ./BlazorAppFront/
       
       - name: Push Docker Image
         run: docker push myapp:${{ github.sha }}
