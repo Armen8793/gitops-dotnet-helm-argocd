@@ -43,7 +43,6 @@ jobs:
           docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }} ./BlazorAppFront/
           docker images
         
-      
       - name: Push Docker Image
         run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
 
