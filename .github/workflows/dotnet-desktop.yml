@@ -104,7 +104,7 @@ jobs:
           subject: "CI/CD Pipeline Completed Successfully"
           body: "Pipeline completed successfully. Status: Success"
           to: ${{ secrets.EMAIL_RECEIVER }}
-          from: ${{ secrets.EMAIL_USER }}
+          from: GitHub <no-reply@github.com>
 
       - name: Send Failure Email
         if: failure()  # Уведомление при ошибке
@@ -117,4 +117,4 @@ jobs:
           subject: "CI/CD Pipeline Failed"
           body: "Pipeline failed. Status: Failure"
           to: ${{ secrets.EMAIL_RECEIVER }}
-          from: ${{ secrets.EMAIL_USER }}
+          from: GitHub <no-reply@github.com>
