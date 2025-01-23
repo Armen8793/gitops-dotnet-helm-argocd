@@ -40,7 +40,7 @@ jobs:
       
       - name: Build Docker Image
         run: |
-          docker build -t myapp$:{{ github.sha }} ./BlazorAppFront/
+          docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }} ./BlazorAppFront/
           docker images
         
       
