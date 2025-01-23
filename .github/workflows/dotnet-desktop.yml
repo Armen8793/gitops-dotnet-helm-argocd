@@ -25,7 +25,7 @@ jobs:
         run: dotnet restore ./BlazorAppFront/BlazorAppFront.csproj
       
       - name: Run Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal ./BlazorAppFront/BlazorAppFront.csproj
 
   build-docker:
     name: Build and Push Docker Image
