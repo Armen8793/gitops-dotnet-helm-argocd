@@ -45,7 +45,7 @@ jobs:
         run: docker build -t myapp:${{ github.sha }} ./BlazorAppFront/
       
       - name: Push Docker Image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }} docker.io
 
   deploy-server:
     name: Deploy to Server
