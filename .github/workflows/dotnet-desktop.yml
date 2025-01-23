@@ -87,7 +87,6 @@ jobs:
             docker rm myapp || true
             docker run -d --name myapp -p 8088:80 myapp:${{ github.sha }}
 
-
   notify:
     name: Notify User
     runs-on: ubuntu-latest
@@ -107,15 +106,15 @@ jobs:
           to: ${{ secrets.EMAIL_RECEIVER }}
           from: ${{ secrets.EMAIL_USER }}
 
-    - name: Send Failure Email
-      if: failure()  # Уведомление при ошибке
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 465
-        username: ${{ secrets.EMAIL_USER }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "CI/CD Pipeline Failed"
-        body: "Pipeline failed. Status: Failure"
-        to: ${{ secrets.EMAIL_RECEIVER }}
-        from: ${{ secrets.EMAIL_USER }}
+      - name: Send Failure Email
+        if: failure()  # Уведомление при ошибке
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "CI/CD Pipeline Failed"
+          body: "Pipeline failed. Status: Failure"
+          to: ${{ secrets.EMAIL_RECEIVER }}
+          from: ${{ secrets.EMAIL_USER }}
