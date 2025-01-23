@@ -59,6 +59,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            eval $(ssh-agent -s)
+            cat "${{ secrets.SERVER_SSH_KEY }}" | ssh-add -
             docker pull myapp:${{ github.sha }}
             docker stop myapp || true
             docker rm myapp || true
