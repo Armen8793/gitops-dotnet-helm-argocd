@@ -22,7 +22,7 @@ jobs:
           dotnet-version: '7.0'
       
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore ./BlazorAppFront/BlazorAppFront.csproj
       
       - name: Run Tests
         run: dotnet test --no-build --verbosity normal
