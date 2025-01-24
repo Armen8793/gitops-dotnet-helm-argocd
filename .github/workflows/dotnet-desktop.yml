@@ -93,7 +93,7 @@ jobs:
     if: always()  
     steps:
       - name: Send Success Email
-        if: ${{ success() }}  
+        if: ${{ needs.test-dotnet.result == 'success' && needs.build-docker.result == 'success' && needs.deploy-server.result == 'success' }}  
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -111,7 +111,7 @@ jobs:
           from: "GitHub Actions <no-reply@github.com>"
 
       - name: Send Failure Email
-        if: ${{ failure() }}  
+        if: ${{ needs.test-dotnet.result != 'success' || needs.build-docker.result != 'success' || needs.deploy-server.result != 'success' }}  
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
