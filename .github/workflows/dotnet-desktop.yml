@@ -94,6 +94,7 @@ jobs:
     steps:
       - name: Send Success Email
         if: ${{ success() }}  
+        needs: [test-dotnet, build-docker, deploy-server]
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -112,6 +113,7 @@ jobs:
 
       - name: Send Failure Email
         if: ${{ failure() }}  
+        needs: [test-dotnet, build-docker, deploy-server]
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
