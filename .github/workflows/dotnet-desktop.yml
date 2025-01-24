@@ -58,7 +58,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         echo "${{ secrets.SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
-        ssh-copy-id -i ~/.ssh/id_rsa.pub ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }
+        ssh-copy-id -i ~/.ssh/id_rsa.pub ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}
         chmod 600 ~/.ssh/id_rsa
         eval "$(ssh-agent -s)"
         ssh-add ~/.ssh/id_rsa
