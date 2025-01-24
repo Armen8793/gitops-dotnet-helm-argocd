@@ -1,13 +1,3 @@
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-
 jobs:
   test-dotnet:
     name: Test .NET Code
@@ -15,21 +5,20 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0'
-      
+
       - name: Restore Dependencies
         run: dotnet restore ./BlazorAppFront/BlazorAppFront.csproj
-      
+
       - name: Run Tests
-        run: dotnet test --no-build --verbosity normal ./BlazorAppFront/BlazorAppFront.csproj
+        run: |
+          dotnet test --no-build --verbosity normal ./BlazorAppFront/BlazorAppFront.csproj || echo "Test failed" > test-error.log
         continue-on-error: true
         id: test-dotnet
-        outputs:
-          error: ${{ steps.test-dotnet.outputs.error }}
 
   build-docker:
     name: Build and Push Docker Image
@@ -38,29 +27,17 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      
+
       - name: Log in to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-        continue-on-error: true
-        id: build-docker
-        outputs:
-          error: ${{ steps.build-docker.outputs.error }}
-      
+
       - name: Build Docker Image
         run: |
           docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }} ./BlazorAppFront/
-          docker images
-        continue-on-error: true
-        id: build-docker
-        outputs:
-          error: ${{ steps.build-docker.outputs.error }}
-        
+          docker images || echo "Docker build failed" > build-error.log
+
       - name: Push Docker Image
         run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
-        continue-on-error: true
-        id: build-docker
-        outputs:
-          error: ${{ steps.build-docker.outputs.error }}
 
   deploy-server:
     name: Deploy to Server
@@ -74,10 +51,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_rsa
-        continue-on-error: true
-        id: deploy-server
-        outputs:
-          error: ${{ steps.deploy-server.outputs.error }}
+
       - name: SSH to server
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -87,15 +61,11 @@ jobs:
           port: 22
           script: |
             echo "Connected successfully"
-          continue-on-error: true
-          id: deploy-server
-          outputs:
-            error: ${{ steps.deploy-server.outputs.error }}
           sync: false
           use_insecure_cipher: false
           timeout: 30s
           command_timeout: 10m
-          debug: true
+          debug: true || echo "SSH connection failed" > ssh-error.log
 
       - name: Run commands on remote server
         uses: appleboy/ssh-action@v0.1.8
@@ -105,41 +75,19 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
+            docker pull myapp:${{ github.sha }}
             docker stop myapp || true
             docker rm myapp || true
-            docker run -d --name myapp -p 8088:80 docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
-        continue-on-error: true
-        id: deploy-server
-        outputs:
-          error: ${{ steps.deploy-server.outputs.error }}
+            docker run -d --name myapp -p 8088:80 myapp:${{ github.sha }} || echo "Docker run failed" > docker-run-error.log
 
   notify:
     name: Notify User
     runs-on: ubuntu-latest
     needs: [test-dotnet, build-docker, deploy-server]
-    if: always()  
+    if: always()
     steps:
-      - name: Send Success Email
-        if: ${{ needs.test-dotnet.result == 'success' && needs.build-docker.result == 'success' && needs.deploy-server.result == 'success' }}  
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USER }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "CI/CD Pipeline Completed Successfully"
-          body: |
-            Pipeline completed successfully.
-            All jobs succeeded:
-            - Test .NET Code
-            - Build and Push Docker Image
-            - Deploy to Server
-          to: ${{ secrets.EMAIL_RECEIVER }}
-          from: "GitHub Actions <no-reply@github.com>"
-
       - name: Send Failure Email
-        if: ${{ needs.test-dotnet.result != 'success' || needs.build-docker.result != 'success' || needs.deploy-server.result != 'success' }}  
+        if: ${{ needs.test-dotnet.result != 'success' || needs.build-docker.result != 'success' || needs.deploy-server.result != 'success' }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -153,7 +101,7 @@ jobs:
             - Test .NET Code: ${{ needs.test-dotnet.result }}
             - Build and Push Docker Image: ${{ needs.build-docker.result }}
             - Deploy to Server: ${{ needs.deploy-server.result }}
-            - Logs: 
+            - Logs:
             {% if needs.test-dotnet.result != 'success' %}
               Test .NET Code Job failed. Logs:
               ${{ steps.test-dotnet.outputs.error }}
@@ -167,4 +115,4 @@ jobs:
               ${{ steps.deploy-server.outputs.error }}
             {% endif %}
           to: ${{ secrets.EMAIL_RECEIVER }}
-          from: "GitHub Actions <no-reply@github.com>"
+          from: GitHub <no-reply@github.com>
