@@ -125,20 +125,8 @@ jobs:
           subject: "CI/CD Pipeline Failed"
           body: |
            Pipeline failed. Check the following jobs:
-            {% if needs.test-dotnet.result != 'success' %}
-              - Test .NET Code: failed
-            {% else %}
-              - Test .NET Code: success
-            {% endif %}
-            {% if needs.build-docker.result != 'success' %}
-              - Build and Push Docker Image: failed
-            {% else %}
-              - Build and Push Docker Image: success
-            {% endif %}
-            {% if needs.deploy-server.result != 'success' %}
-              - Deploy to Server: failed
-            {% else %}
-              - Deploy to Server: success
-            {% endif %}
+            - Test .NET Code: ${{ needs.test-dotnet.result }}
+            - Build and Push Docker Image: ${{ needs.build-docker.result }}
+            - Deploy to Server: ${{ needs.deploy-server.result }}
           to: ${{ secrets.EMAIL_RECEIVER }}
           from: ${{ secrets.EMAIL_SENDER }}
