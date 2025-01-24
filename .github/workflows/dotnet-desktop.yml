@@ -156,8 +156,8 @@ jobs:
             - Build and Push Docker Image: ${{ needs.build-docker.result }}
             - Deploy to Server: ${{ needs.deploy-server.result }}
             - Logs:
-            Test .NET Code Job Logs: ${{ needs.test-dotnet.outputs.error }}
-            Build Docker Job Logs: ${{ needs.build-docker.outputs.error }}
-            Deploy Server Job Logs: ${{ needs.deploy-server.outputs.error }}
+              Test .NET Code Job Logs: ${{ steps.test-dotnet.outputs.logs }}
+              Build Docker Job Logs: ${{ steps.build-docker.outputs.logs }}
+              Deploy Server Job Logs: ${{ steps.deploy-server.outputs.logs }}
           to: ${{ secrets.EMAIL_RECEIVER }}
           from: GitHub <no-reply@github.com>
