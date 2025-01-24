@@ -55,14 +55,6 @@ jobs:
           docker images || echo "Docker build failed" > build-error.log
         id: build-docker
 
-      - name: Set build-docker error output
-        run: |
-          if [ -f build-error.log ]; then
-            echo "::set-output name=error::$(cat build-error.log)"
-          else
-            echo "::set-output name=error::No errors"
-          fi
-
       - name: Push Docker Image
         run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
 
@@ -95,13 +87,6 @@ jobs:
           debug: true || echo "SSH connection failed" > ssh-error.log
         id: deploy-server
 
-      - name: Set deploy-server error output
-        run: |
-          if [ -f ssh-error.log ]; then
-            echo "::set-output name=error::$(cat ssh-error.log)"
-          else
-            echo "::set-output name=error::No errors"
-          fi
 
       - name: Run commands on remote server
         uses: appleboy/ssh-action@v0.1.8
@@ -122,6 +107,22 @@ jobs:
     needs: [test-dotnet, build-docker, deploy-server]
     if: always()
     steps:
+      - name: Set Output for Test .NET Logs
+        id: test-dotnet-logs
+        run: echo "::set-output name=logs::$(cat $GITHUB_WORKSPACE/test-output.log)"
+        if: failure()
+
+      - name: Set Output for Build Docker Logs
+        id: build-docker-logs
+        run: echo "::set-output name=logs::$(cat $GITHUB_WORKSPACE/build-output.log)"
+        if: failure()
+
+      - name: Set Output for Deploy Server Logs
+        id: deploy-server-logs
+        run: echo "::set-output name=logs::$(cat $GITHUB_WORKSPACE/deploy-output.log)"
+        if: failure()
+
+        
       - name: Send Success Email
         if: ${{ needs.test-dotnet.result == 'success' && needs.build-docker.result == 'success' && needs.deploy-server.result == 'success' }}
         uses: dawidd6/action-send-mail@v3
