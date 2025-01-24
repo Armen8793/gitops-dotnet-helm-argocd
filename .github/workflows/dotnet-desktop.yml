@@ -99,8 +99,8 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: Armen Petrosyan
-          password: ${{ secrets.EMAIL_PASSWORD }}
+          username: petrosyanarmen723@gmail.com
+          password: lrygxdpbvofjgint 
           subject: "CI/CD Pipeline Completed Successfully"
           body: "Pipeline completed successfully. Status: Success"
           to: ${{ secrets.EMAIL_RECEIVER }}
@@ -113,7 +113,7 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 465
           username: petrosyanarmen723@gmail.com
-          password: samuray1987
+          password: lrygxdpbvofjgint 
           subject: "CI/CD Pipeline Failed"
           body: "Pipeline failed. Status: Failure"
           to: petrosyanarmen723@gmail.com
