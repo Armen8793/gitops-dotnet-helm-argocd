@@ -158,6 +158,6 @@ jobs:
             - Logs:
             Test .NET Code Job Logs: ${{ needs.test-dotnet.outputs.error }}
             Build Docker Job Logs: ${{ needs.build-docker.outputs.error }}
-            Deploy Server Job Logs: ${{ needs.deploy-server.outputs.error }
+            Deploy Server Job Logs: ${{ needs.deploy-server.outputs.error }}
           to: ${{ secrets.EMAIL_RECEIVER }}
           from: GitHub <no-reply@github.com>
