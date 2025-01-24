@@ -150,20 +150,14 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "CI/CD Pipeline Failed"
           body: |
-            Pipeline failed.
+           Pipeline failed.
             Check the following jobs:
             - Test .NET Code: ${{ needs.test-dotnet.result }}
             - Build and Push Docker Image: ${{ needs.build-docker.result }}
             - Deploy to Server: ${{ needs.deploy-server.result }}
             - Logs:
-            {% if needs.test-dotnet.result != 'success' %}
-              Test .NET Code Job failed. Logs: ${{ needs.test-dotnet.outputs.error }}
-            {% endif %}
-            {% if needs.build-docker.result != 'success' %}
-              Build Docker Job failed. Logs: ${{ needs.build-docker.outputs.error }}
-            {% endif %}
-            {% if needs.deploy-server.result != 'success' %}
-              Deploy Server Job failed. Logs: ${{ needs.deploy-server.outputs.error }}
-            {% endif %}
+            Test .NET Code Job Logs: ${{ needs.test-dotnet.outputs.error }}
+            Build Docker Job Logs: ${{ needs.build-docker.outputs.error }}
+            Deploy Server Job Logs: ${{ needs.deploy-server.outputs.error }}
           to: ${{ secrets.EMAIL_RECEIVER }}
           from: GitHub <no-reply@github.com>
