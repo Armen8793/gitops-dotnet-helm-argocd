@@ -98,8 +98,8 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: petrosyanarmen723@gmail.com
-          password: lrygxdpbvofjgint 
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "CI/CD Pipeline Completed Successfully"
           body: |
             Pipeline completed successfully.
@@ -116,11 +116,27 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: petrosyanarmen723@gmail.com
-          password: lrygxdpbvofjgint 
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "CI/CD Pipeline Failed"
           body: |
-            Pipeline failed. Please check the logs for details.
-            Failed Job: ${{ github.job }}
+            Pipeline failed.
+            Check the following jobs:
+            - Test .NET Code: ${{ needs.test-dotnet.result }}
+            - Build and Push Docker Image: ${{ needs.build-docker.result }}
+            - Deploy to Server: ${{ needs.deploy-server.result }}
+            - Logs: 
+            {% if needs.test-dotnet.result != 'success' %}
+              Test .NET Code Job failed. Logs:
+              ${{ steps.test-dotnet.outputs.error }}
+            {% endif %}
+            {% if needs.build-docker.result != 'success' %}
+              Build Docker Job failed. Logs:
+              ${{ steps.build-docker.outputs.error }}
+            {% endif %}
+            {% if needs.deploy-server.result != 'success' %}
+              Deploy Server Job failed. Logs:
+              ${{ steps.deploy-server.outputs.error }}
+            {% endif %}
           to: ${{ secrets.EMAIL_RECEIVER }}
           from: "GitHub Actions <no-reply@github.com>"
