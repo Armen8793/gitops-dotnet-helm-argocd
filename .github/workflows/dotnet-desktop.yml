@@ -91,16 +91,16 @@ jobs:
     name: Notify User
     runs-on: ubuntu-latest
     needs: deploy-server
-    if: always()  # Выполняется всегда, независимо от статуса job
+    if: always()  
     steps:
       - name: Send Success Email
-        if: success()  # Уведомление при успешном завершении
+        if: success()  
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.EMAIL_USER }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
+          #username: ${{ secrets.EMAIL_USER }}
+          #password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "CI/CD Pipeline Completed Successfully"
           body: "Pipeline completed successfully. Status: Success"
           to: ${{ secrets.EMAIL_RECEIVER }}
@@ -112,8 +112,8 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.EMAIL_USER }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
+          #username: ${{ secrets.EMAIL_USER }}
+         # password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "CI/CD Pipeline Failed"
           body: "Pipeline failed. Status: Failure"
           to: ${{ secrets.EMAIL_RECEIVER }}
