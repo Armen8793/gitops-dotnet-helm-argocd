@@ -112,9 +112,9 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: Armen Petrosyan
-          password: ${{ secrets.EMAIL_PASSWORD }}
+          username: petrosyanarmen723@gmail.com
+          password: samuray1987
           subject: "CI/CD Pipeline Failed"
           body: "Pipeline failed. Status: Failure"
-          to: ${{ secrets.EMAIL_RECEIVER }}
+          to: petrosyanarmen723@gmail.com
           from: GitHub <no-reply@github.com>
