@@ -28,15 +28,7 @@ jobs:
         run: |
           dotnet test --no-build --verbosity normal ./BlazorAppFront/BlazorAppFront.csproj || echo "Test failed" > test-error.log
         continue-on-error: true
-        id: test-dotnet
-
-      - name: Set test-dotnet error output
-        run: |
-          if [ -f test-error.log ]; then
-            echo "::set-output name=error::$(cat test-error.log)"
-          else
-            echo "::set-output name=error::No errors"
-          fi
+        
 
   build-docker:
     name: Build and Push Docker Image
@@ -52,9 +44,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }} ./BlazorAppFront/
-          docker images || echo "Docker build failed" > build-error.log
-        id: build-docker
-
+      
       - name: Push Docker Image
         run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
 
@@ -84,8 +74,7 @@ jobs:
           use_insecure_cipher: false
           timeout: 30s
           command_timeout: 10m
-          debug: true || echo "SSH connection failed" > ssh-error.log
-        id: deploy-server
+          debug: true 
 
 
       - name: Run commands on remote server
@@ -107,22 +96,6 @@ jobs:
     needs: [test-dotnet, build-docker, deploy-server]
     if: always()
     steps:
-      - name: Set Output for Test .NET Logs
-        id: test-dotnet-logs
-        run: echo "::set-output name=logs::$(cat $GITHUB_WORKSPACE/test-output.log)"
-        if: failure()
-
-      - name: Set Output for Build Docker Logs
-        id: build-docker-logs
-        run: echo "::set-output name=logs::$(cat $GITHUB_WORKSPACE/build-output.log)"
-        if: failure()
-
-      - name: Set Output for Deploy Server Logs
-        id: deploy-server-logs
-        run: echo "::set-output name=logs::$(cat $GITHUB_WORKSPACE/deploy-output.log)"
-        if: failure()
-
-        
       - name: Send Success Email
         if: ${{ needs.test-dotnet.result == 'success' && needs.build-docker.result == 'success' && needs.deploy-server.result == 'success' }}
         uses: dawidd6/action-send-mail@v3
@@ -151,14 +124,21 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "CI/CD Pipeline Failed"
           body: |
-           Pipeline failed.
-            Check the following jobs:
-            - Test .NET Code: ${{ needs.test-dotnet.result }}
-            - Build and Push Docker Image: ${{ needs.build-docker.result }}
-            - Deploy to Server: ${{ needs.deploy-server.result }}
-            - Logs:
-              Test .NET Code Job Logs: ${{ steps.test-dotnet.outputs.logs }}
-              Build Docker Job Logs: ${{ steps.build-docker.outputs.logs }}
-              Deploy Server Job Logs: ${{ steps.deploy-server.outputs.logs }}
+           Pipeline failed. Check the following jobs:
+            {% if needs.test-dotnet.result != 'success' %}
+              - Test .NET Code: failed
+            {% else %}
+              - Test .NET Code: success
+            {% endif %}
+            {% if needs.build-docker.result != 'success' %}
+              - Build and Push Docker Image: failed
+            {% else %}
+              - Build and Push Docker Image: success
+            {% endif %}
+            {% if needs.deploy-server.result != 'success' %}
+              - Deploy to Server: failed
+            {% else %}
+              - Deploy to Server: success
+            {% endif %}
           to: ${{ secrets.EMAIL_RECEIVER }}
-          from: GitHub <no-reply@github.com>
+          from: ${{ secrets.EMAIL_SENDER }}
