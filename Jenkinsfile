@@ -1,17 +1,17 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_CREDENTIALS = credentials('docker-credentials')
-        SERVER_CREDENTIALS = credentials('server-credentials') 
-        GIT_CREDENTIALS = credentials('github-ssh-key')        
-    }
+    //environment {
+      //  DOCKER_CREDENTIALS = credentials('docker-credentials')
+        //SERVER_CREDENTIALS = credentials('server-credentials') 
+       // GIT_CREDENTIALS = credentials('github-ssh-key')        
+   // }
 
     stages {
         stage('Checkout Code') {
             steps {
                 echo "Checking out code..."
-                git url: 'git@github.com:ваш_пользователь/ваш_репозиторий.git', credentialsId: 'github-ssh-key'
+                git url: 'git@github.com:Armen8793/gitops-dotnet-helm-argocd.git', credentialsId: 'github-ssh-key'
             }
         }
 
@@ -62,13 +62,13 @@ pipeline {
 
     post {
         success {
-            mail to: "receiver@example.com",
+            mail to: "petrosyanarmen723@gmail.com",
                  subject: "CI/CD Pipeline Completed Successfully",
                  body: "Pipeline completed successfully. All jobs succeeded."
         }
 
         failure {
-            mail to: "receiver@example.com",
+            mail to: "petrosyanarmen723@gmail.com",
                  subject: "CI/CD Pipeline Failed",
                  body: "Pipeline failed. Check the logs for more details."
         }
