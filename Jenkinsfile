@@ -2,22 +2,16 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_USERNAME = credentials('docker-username')  // ID ваших Jenkins credentials
-        DOCKER_PASSWORD = credentials('docker-password')
-        SSH_PRIVATE_KEY = credentials('ssh-private-key')
-        SSH_PUBLIC_KEY = credentials('ssh-public-key')
-        SERVER_USER = credentials('server-user')
-        SERVER_HOST = credentials('server-host')
-        EMAIL_USER = credentials('email-user')
-        EMAIL_PASSWORD = credentials('email-password')
-        EMAIL_RECEIVER = credentials('email-receiver')
+        DOCKER_CREDENTIALS = credentials('docker-credentials')
+        SERVER_CREDENTIALS = credentials('server-credentials') 
+        GIT_CREDENTIALS = credentials('github-ssh-key')        
     }
 
     stages {
         stage('Checkout Code') {
             steps {
                 echo "Checking out code..."
-                checkout scm
+                git url: 'git@github.com:ваш_пользователь/ваш_репозиторий.git', credentialsId: 'github-ssh-key'
             }
         }
 
@@ -40,10 +34,10 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    withDockerRegistry([url: 'https://index.docker.io/v1/', credentialsId: 'docker-credentials-id']) {
+                    withDockerRegistry([url: 'https://index.docker.io/v1/', credentialsId: 'docker-credentials']) {
                         sh '''
-                            docker build -t ${DOCKER_USERNAME}/myapp:${BUILD_ID} ./BlazorAppFront/
-                            docker push ${DOCKER_USERNAME}/myapp:${BUILD_ID}
+                            docker build -t ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID} ./BlazorAppFront/
+                            docker push ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
                         '''
                     }
                 }
@@ -53,22 +47,12 @@ pipeline {
         stage('Deploy to Server') {
             steps {
                 script {
-                    // Подготовка ключей SSH
                     sh '''
-                        mkdir -p ~/.ssh
-                        echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
-                        echo "${SSH_PUBLIC_KEY}" > ~/.ssh/id_rsa.pub
-                        chmod 600 ~/.ssh/id_rsa
-                        ssh-copy-id -i ~/.ssh/id_rsa.pub ${SERVER_USER}@${SERVER_HOST}
-                    '''
-
-                    // Выполнение команд через SSH
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_HOST} << EOF
-                        docker pull ${DOCKER_USERNAME}/myapp:${BUILD_ID}
+                        ssh -o StrictHostKeyChecking=no ${SERVER_CREDENTIALS_USR}@${SERVER_CREDENTIALS_PSW} << EOF
+                        docker pull ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
                         docker stop myapp || true
                         docker rm myapp || true
-                        docker run -d --name myapp -p 8088:80 ${DOCKER_USERNAME}/myapp:${BUILD_ID}
+                        docker run -d --name myapp -p 8088:80 ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
                         EOF
                     '''
                 }
@@ -78,23 +62,15 @@ pipeline {
 
     post {
         success {
-            mail to: "${EMAIL_RECEIVER}",
+            mail to: "receiver@example.com",
                  subject: "CI/CD Pipeline Completed Successfully",
-                 body: """
-                 Pipeline completed successfully.
-                 All jobs succeeded:
-                 - Test .NET Code
-                 - Build and Push Docker Image
-                 - Deploy to Server
-                 """
+                 body: "Pipeline completed successfully. All jobs succeeded."
         }
 
         failure {
-            mail to: "${EMAIL_RECEIVER}",
+            mail to: "receiver@example.com",
                  subject: "CI/CD Pipeline Failed",
-                 body: """
-                 Pipeline failed. Check the logs for more details.
-                 """
+                 body: "Pipeline failed. Check the logs for more details."
         }
     }
 }
