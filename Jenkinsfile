@@ -1,7 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        label 'agent'  
+    }
     environment {
-        DOCKER_HOME = '/usr/bin/docker'  
+        DOCKER_CREDENTIALS_USR = credentials('docker-credentials-usr')  
+        DOCKER_CREDENTIALS_PSW = credentials('docker-credentials-psw')
     }
     stages {
         stage('Checkout Code') {
