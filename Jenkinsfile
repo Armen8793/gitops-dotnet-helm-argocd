@@ -1,17 +1,13 @@
 pipeline {
     agent any
 
-    //environment {
-      //  DOCKER_CREDENTIALS = credentials('docker-credentials')
-        //SERVER_CREDENTIALS = credentials('server-credentials') 
-       // GIT_CREDENTIALS = credentials('github-ssh-key')        
-   // }
-
     stages {
         stage('Checkout Code') {
             steps {
                 echo "Checking out code..."
-                git url: 'git@github.com:Armen8793/gitops-dotnet-helm-argocd.git', credentialsId: 'github-ssh-key'
+                git url: 'git@github.com:Armen8793/gitops-dotnet-helm-argocd.git', 
+                    credentialsId: 'github-ssh-key', 
+                    branch: 'master'  // Укажите нужную ветку
             }
         }
 
