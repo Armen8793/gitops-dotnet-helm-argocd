@@ -16,8 +16,11 @@ pipeline {
                 script {
                     echo "Installing .NET SDK..."
                     sh '''
-                        apt-get update
-                        apt-get install -y dotnet-sdk-7.0 
+                        wget https://download.visualstudio.microsoft.com/download/pr/3d799a68-d9fd-40f9-bd0d-82e24571eb7a/70d217a3495e1f0286a4f49c77f2e9fc/dotnet-sdk-6.0.400-linux-x64.tar.gz
+                        mkdir -p $HOME/dotnet
+                        tar -zxf dotnet-sdk-6.0.400-linux-x64.tar.gz -C $HOME/dotnet
+                        echo "export PATH=\$PATH:$HOME/dotnet" >> ~/.bashrc
+                        source ~/.bashrc
                     '''
                 }
             }
