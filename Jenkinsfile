@@ -11,6 +11,18 @@ pipeline {
             }
         }
 
+        stage('Install .NET SDK') {
+            steps {
+                script {
+                    echo "Installing .NET SDK..."
+                    sh '''
+                        sudo apt-get update
+                        sudo apt-get install -y dotnet-sdk-6.0 
+                    '''
+                }
+            }
+        }
+
         stage('Test .NET Code') {
             steps {
                 script {
