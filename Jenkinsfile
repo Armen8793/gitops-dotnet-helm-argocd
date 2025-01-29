@@ -7,7 +7,7 @@ pipeline {
                 echo "Checking out code..."
                 git url: 'git@github.com:Armen8793/gitops-dotnet-helm-argocd.git', 
                     credentialsId: 'github-ssh-key', 
-                    branch: 'master'  // Укажите нужную ветку
+                    branch: 'main' 
             }
         }
 
