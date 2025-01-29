@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    environment {
+        DOCKER_HOME = '/usr/bin/docker'  
+    }
     stages {
         stage('Checkout Code') {
             steps {
@@ -13,15 +15,15 @@ pipeline {
 
         stage('Login to Docker') {
             steps {
-                sh 'docker login -u $DOCKER_CREDENTIALS_USR -p $DOCKER_CREDENTIALS_PSW'
+                sh '/usr/bin/docker login -u $DOCKER_CREDENTIALS_USR -p $DOCKER_CREDENTIALS_PSW'
             }
         }
 
         stage('Build and Push Docker Image') {
             steps {
                 sh '''
-                    docker build -t ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID} ./BlazorAppFront/
-                    docker push ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
+                    /usr/bin/docker build -t ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID} ./BlazorAppFront/
+                    /usr/bin/docker push ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
                '''
             }
         }
@@ -31,10 +33,10 @@ pipeline {
                 script {
                     sh '''
                         ssh -o StrictHostKeyChecking=no ${SERVER_CREDENTIALS_USR}@${SERVER_CREDENTIALS_PSW} << EOF
-                        docker pull ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
-                        docker stop myapp || true
-                        docker rm myapp || true
-                        docker run -d --name myapp -p 8088:80 ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
+                        /usr/bin/docker pull ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
+                        /usr/bin/docker stop myapp || true
+                        /usr/bin/docker rm myapp || true
+                        /usr/bin/docker run -d --name myapp -p 8088:80 ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
                         EOF
                     '''
                 }
