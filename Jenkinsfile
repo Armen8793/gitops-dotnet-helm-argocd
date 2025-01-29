@@ -11,17 +11,18 @@ pipeline {
             }
         }
 
+        stage('Login to Docker') {
+            steps {
+                sh 'docker login -u $DOCKER_CREDENTIALS_USR -p $DOCKER_CREDENTIALS_PSW'
+            }
+        }
 
         stage('Build and Push Docker Image') {
             steps {
-                script {
-                    withDockerRegistry([url: 'https://index.docker.io/v1/', credentialsId: 'docker-credentials']) {
-                        sh '''
-                            docker build -t ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID} ./BlazorAppFront/
-                            docker push ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
-                        '''
-                    }
-                }
+                sh '''
+                    docker build -t ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID} ./BlazorAppFront/
+                    docker push ${DOCKER_CREDENTIALS_USR}/myapp:${BUILD_ID}
+               '''
             }
         }
 
