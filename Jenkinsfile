@@ -16,8 +16,8 @@ pipeline {
                 script {
                     echo "Installing .NET SDK..."
                     sh '''
-                        sudo apt-get update
-                        sudo apt-get install -y dotnet-sdk-7.0 
+                        apt-get update
+                        apt-get install -y dotnet-sdk-7.0 
                     '''
                 }
             }
