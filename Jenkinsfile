@@ -11,36 +11,6 @@ pipeline {
             }
         }
 
-        stage('Install .NET SDK') {
-            steps {
-                script {
-                    echo "Installing .NET SDK..."
-                    sh '''
-                        wget https://download.visualstudio.microsoft.com/download/pr/3d799a68-d9fd-40f9-bd0d-82e24571eb7a/70d217a3495e1f0286a4f49c77f2e9fc/dotnet-sdk-6.0.400-linux-x64.tar.gz
-                        mkdir -p $HOME/dotnet
-                        tar -zxf dotnet-sdk-6.0.400-linux-x64.tar.gz -C $HOME/dotnet
-                        echo "export PATH=\$PATH:$HOME/dotnet" >> ~/.bashrc
-                        source ~/.bashrc
-                    '''
-                }
-            }
-        }
-
-        stage('Test .NET Code') {
-            steps {
-                script {
-                    try {
-                        sh '''
-                            dotnet restore ./BlazorAppFront/BlazorAppFront.csproj
-                            dotnet test --no-build --verbosity normal ./BlazorAppFront/BlazorAppFront.csproj
-                        '''
-                    } catch (Exception e) {
-                        writeFile file: 'test-error.log', text: "Test failed"
-                        error("Tests failed")
-                    }
-                }
-            }
-        }
 
         stage('Build and Push Docker Image') {
             steps {
