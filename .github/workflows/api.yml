@@ -57,6 +57,16 @@ deploy-server:
     uses: actions/checkout@v3
 
   - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+  - name: Debug SSH connection
+      run: |
+        echo "Starting SSH connection..."
+        ssh -vvv -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} exit
+
+  - name: Setup SSH Agent
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
