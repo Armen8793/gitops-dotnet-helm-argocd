@@ -65,8 +65,7 @@ jobs:
         git config --global user.email "${{ secrets.EMAIL_RECEIVER }}"
         git config --global user.name "${{ secrets.SERVER_USER }}"
         git clone https://"${{ secrets.SERVER_USER }}":"${{ secrets.CI_TOKEN }}"@github.com/Armen8793/gitops-dotnet-helm-argocd.git
-        cd /home/runner/work/gitops-dotnet-helm-argocd/gitops-dotnet-helm-argocd/gitops-dotnet-helm-argocd
-        echo -e "image:\n  repository: docker.io/${{ secrets.DOCKER_USERNAME }}/api\n  tag: ${IMAGE_TAG}\n  pullPolicy: IfNotPresent" > ./helmcharts/apimicroservice/values-tag.yaml
+        echo -e "image:\n  repository: docker.io/${{ secrets.DOCKER_USERNAME }}/api\n  tag: ${IMAGE_TAG}\n  pullPolicy: IfNotPresent" > /home/runner/work/gitops-dotnet-helm-argocd/gitops-dotnet-helm-argocd/gitops-dotnet-helm-argocd/helmchart/apimicroservice/values-tag.yaml
         git add -A && git commit -m "Update image tag to ${IMAGE_TAG}"
         git push https://"${{ secrets.SERVER_USER }}":"${{ secrets.CI_TOKEN }}"@github.com/Armen8793/gitops-dotnet-helm-argocd.git HEAD:main        
         
