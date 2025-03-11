@@ -53,7 +53,7 @@ ingress:
         nginx.ingress.kubernetes.io/rewrite-target: /$2
         nginx.ingress.kubernetes.io/use-regex: 'true'
     hosts:
-        - host: example.com
+        - host: armenashoti.xyz
           paths:
             - path: /apimicroservice(/|$)(.*)
               pathType: Prefix
@@ -63,7 +63,7 @@ ingress:
                     port: 8080
     tls:
         - hosts:
-            - example.com
+            - armenashoti.xyz
 resources:
     limits:
         # cpu: 1000m
