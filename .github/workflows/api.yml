@@ -55,11 +55,17 @@ jobs:
     steps:
     - name: Setup SSH Agent
       run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
         export IMAGE_SHA256=$(docker inspect --format='{{index .RepoDigests 0}}' api:${{ github.sha }})
         git config --global user.email "${{ secrets.EMAIL_RECEIVER }}" && git config --global user.name "${secrets.SERVER_USER}"
         'echo -e "image:\n    repository: $IMAGE_SHA256\n    pullPolicy: IfNotPresent\n    tag: []" > ./helmchart/apimicroservice/values-tag.yaml'
         git add -A && git commit -m "add new image apimicroservice"
-        git push https://"${{ secrets.CI_TOKEN }}":"@${secrets.SERVER_HOST}/${secrets.SERVER_USER}/gitops-dotnet-helm-argocd.git HEAD:main
+        #git push https://"${{ secrets.CI_TOKEN }}":"@${secrets.SERVER_HOST}/${secrets.SERVER_USER}/gitops-dotnet-helm-argocd.git HEAD:main
+        git push git@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_USER }}/gitops-dotnet-helm-argocd.git HEAD:main
+
         
         
   notify:
