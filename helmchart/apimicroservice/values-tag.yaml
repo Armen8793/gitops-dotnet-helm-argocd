@@ -1,4 +1,4 @@
 image:
-    repository: image-registry-url/group/repository@sha256:image-sha-generated-in-gitlab-ci-pipeline
+    repository: docker.io/armen8793/api:f959187f88acb9de18fdee49a2ef1a6a1aac6769
     pullPolicy: IfNotPresent
     tag: []
