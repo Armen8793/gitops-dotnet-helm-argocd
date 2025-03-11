@@ -49,31 +49,26 @@ jobs:
         run: docker push docker.io/${{ secrets.DOCKER_USERNAME }}/api:${{ github.sha }}
 
 
-deploy-server:
-  name: Deploy to Server
-  runs-on: ubuntu-latest
-  needs: build-docker
-  steps:
-  - name: Checkout Repository
-    uses: actions/checkout@v3
+  deploy-server:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: build-docker
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
 
+    - name: Set Image SHA
+      run: echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
 
-
-  - name: Set Image SHA
-    run: echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
-
-  - name: Update Helm Chart
-    run: |
-      git config --global user.email "${{ secrets.EMAIL_RECEIVER }}"
-      git config --global user.name "${{ secrets.SERVER_USER }}"
-      git clone https://"${{ secrets.SERVER_USER }}":"${{ secrets.CI_TOKEN }}"@"${{ secrets.SERVER_HOST }}"/gitops-dotnet-helm-argocd.git
-      cd gitops-dotnet-helm-argocd
-      echo -e "image:\n  repository: docker.io/${{ secrets.DOCKER_USERNAME }}/api\n  tag: ${IMAGE_TAG}\n  pullPolicy: IfNotPresent" > ./helmcharts/apimicroservice/values-tag.yaml
-      git add -A && git commit -m "Update image tag to ${IMAGE_TAG}"
-      git push https://"${{ secrets.SERVER_USER }}":"${{ secrets.CI_TOKEN }}"@"${{ secrets.SERVER_HOST }}"/gitops-dotnet-helm-argocd.git HEAD:main
-
-
-        
+    - name: Update Helm Chart
+      run: |
+        git config --global user.email "${{ secrets.EMAIL_RECEIVER }}"
+        git config --global user.name "${{ secrets.SERVER_USER }}"
+        git clone https://"${{ secrets.SERVER_USER }}":"${{ secrets.CI_TOKEN }}"@"${{ secrets.SERVER_HOST }}"/gitops-dotnet-helm-argocd.git
+        cd gitops-dotnet-helm-argocd
+        echo -e "image:\n  repository: docker.io/${{ secrets.DOCKER_USERNAME }}/api\n  tag: ${IMAGE_TAG}\n  pullPolicy: IfNotPresent" > ./helmcharts/apimicroservice/values-tag.yaml
+        git add -A && git commit -m "Update image tag to ${IMAGE_TAG}"
+        git push https://"${{ secrets.SERVER_USER }}":"${{ secrets.CI_TOKEN }}"@"${{ secrets.SERVER_HOST }}"/gitops-dotnet-helm-argocd.git HEAD:main        
         
   notify:
     name: Notify User
